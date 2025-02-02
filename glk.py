@@ -1,24 +1,47 @@
 import pexpect
 import sys
 import json
+import discord
 
 
 class GLKSession:
-    def __init__(self, game_path, channel_id):
-        self.channel_id = channel_id
+    def __init__(self, game_path):
         self.gen = 0
-        session = pexpect.spawnu("./git " + game_path)
-        session.logfile = sys.stdout
-        to_send = '{"type": "init", "gen": 0, "support": [], "metrics": {"width":80,"height":24}}'
-        session.sendline(to_send)
-        session.expect("\r\n\r\n")
-        response = json.loads(session.before.replace(to_send, ""))
+        self.session = pexpect.spawnu("./git " + game_path)
+        self.session.logfile = sys.stdout
+        # send init input to session
+        self.to_send = '{"type": "init", "gen": 0, "support": [], "metrics": {"width":80,"height":24}}'
+        self.session.sendline(self.to_send)
+        self.handle_response()
+
+    def get_response(self):
+        return format_response(self.game_response)
 
     def end_session(self):
-        pass
+        self.session.terminate(force=False)
 
     def send(self, message):
-        pass
+        self.gen += 1
+        self.to_send = (
+            '{{"type": "{}", "gen": {}, "window": {}, "value": "{}"}}'.format(
+                self.input_type,
+                self.gen,
+                self.window_id,
+                message,
+            )
+        )
+        self.session.sendline(self.to_send)
+        # process the response
+        self.handle_response()
+
+    def handle_response(self):
+        self.session.expect("\r\n\r\n")
+        self.game_response = json.loads(self.session.before.replace(self.to_send, ""))
+        if self.game_response["type"] == "error":
+            raise Exception
+        self.input_type = self.game_response["input"][0]["type"]
+        self.window_id = self.game_response["content"][1]["id"]
 
 
-GLKSession("stories/CounterfeitMonkey-11.gblorb")
+def format_response(response_object):
+    return response_object["content"][1]["text"]
