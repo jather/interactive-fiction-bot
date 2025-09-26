@@ -1,4 +1,4 @@
-# interactive fiction bot
+# Interactive fiction bot
 
 ## What it is
 A discord bot made with discord.py that allows you to play glulx games. You can create savefiles per-user per-game, and multiple games can be run at once in different channels. 
@@ -12,7 +12,7 @@ A discord bot made with discord.py that allows you to play glulx games. You can 
 
 Use in-game commands for saving and restoring. 
 
-## Instructions to run
+<!-- ## Instructions to run
 You need to compile git (the interpreter for the glulx format, not the version control system) against RemGlk and put the executable in the top level directory.
 
 You also need to create a discord bot and get the token. Once you've done all that:
@@ -23,9 +23,15 @@ $ python -m venv .venv
 $ pip install -r requirements.txt
 ```
 ### Create .env file
-contains:
+create a .env file in the top level directory that contains:
 ```
-api key
+DISCORD_TOKEN = ""
 ```
-### 
-run the bot
+### Run the bot
+python3 bot.py
+
+### License
+
+### Credits
+Referenced Xyxxanie a lot for the glk interpreter logic and also just in general. 
+https://gitlab.com/Natrium729/xyzzanie -->

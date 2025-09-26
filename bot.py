@@ -54,7 +54,7 @@ async def start(interaction: discord.Interaction, game: str):
         )
     else:
         # find file path from json file. if doesn't exist, send error message
-        games = await utils.get_games()
+        games = await utils.get_saved_games()
         if game.lower() not in games:
             await interaction.response.send_message("no game with that title in list")
             return
@@ -79,35 +79,26 @@ async def stop(interaction: discord.Interaction):
 
 @bot.tree.command(name="list", description="list available games")
 async def list_games(interaction: discord.Interaction):
-    games = await utils.get_games()
+    games = await utils.get_saved_games()
     await interaction.response.send_message([game for game in games])
 
 
-# TODO make embed view
+@bot.tree.command(
+    name="search", description="search for a title on IFDB and show the first result"
+)
+async def search(interaction: discord.Interaction, message: str):
+    search_result = await utils.search_game(message)
+    pages = utils.format_search_result(search_result)
+    view = utils.PageView(discord.Interaction, pages)
+    await interaction.response.send_message(embed=pages[0], view=view)
 
 
 @bot.tree.command(name="add", description="add a new game by downloading its file")
 @commands.is_owner()
 async def add(interaction: discord.Interaction, game: str):
-    games = await utils.get_games()
+    games = await utils.get_saved_games()
     if game.lower() in games:
         await interaction.response.send_message("we already have that game!")
-
-
-# @bot.tree.command(name="search", description="search for a title on IFDB")
-# async def search(interaction: discord.Interaction, message: str):
-#     async with aiohttp.ClientSession() as session:
-#         print(message)
-#         async with session.get(
-#             f"http://ifdb.org/search?json&game&searchfor={message}"
-#         ) as resp:
-#             print(resp.status)
-#             print(resp.json)
-#             response = await resp.json()
-#             games_list = [game["title"] for game in response["games"]]
-#     await interaction.response.send_message(
-#         f"{len(games_list)} results. The following games from IFDB match your search:\n{games_list}"
-#     )
 
 
 bot.run(TOKEN)
