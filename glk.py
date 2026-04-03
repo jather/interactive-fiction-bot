@@ -9,6 +9,7 @@ class GLKSession:
         self.gen = 0
         self.session = pexpect.spawnu("./git " + game_path)
         self.session.logfile = sys.stdout
+        self.game_response = ""
         # send init input to session
         self.to_send = '{"type": "init", "gen": 0, "support": [], "metrics": {"width":80,"height":24}}'
         self.session.sendline(self.to_send)
@@ -34,8 +35,8 @@ class GLKSession:
         # process the response
         self.handle_response()
 
-    def handle_response(self):
-        self.session.expect("\r\n\r\n")
+    async def handle_response(self):
+        await self.session.expect("\r\n\r\n", async_=True)
         self.game_response = json.loads(self.session.before.replace(self.to_send, ""))
         if self.game_response["type"] == "error":
             raise Exception

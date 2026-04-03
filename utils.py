@@ -50,3 +50,14 @@ class PageView(discord.ui.View):
         self.pages = pages
         self.current_page = 0
         self.buttonModal.label = f"{self.current_page+1}/{len(self.pages)}"
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user == self.interaction.user:
+            return True
+        else:
+            emb = discord.Embed(
+                description=f"Only the author of the command can perform this action.",
+                color=16711680,
+            )
+            await interaction.response.send_message(embed=emb, ephemeral=True)
+            return False
